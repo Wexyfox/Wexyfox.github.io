@@ -26,7 +26,7 @@ class MyTweetStreamer():
         stream = Stream( authenticator , listener )
         #variable that holds the imported Stream
 
-        stream.filter( track = ['#news'] )
+        stream.filter( track = ['#corona'] )
         #only picks up tweets containing hashtag as apposed to all tweets and then filtering
 
 
@@ -45,12 +45,12 @@ class OutListener(StreamListener):
             language_end_point = data.find('","timestamp_ms":"')
             tweet_langauge = data[language_start_point : language_end_point]
 
-            if tweet_langauge != "fr":
+            if tweet_langauge == "fr":
                 text_start_point = data.find(',"text":"') + len(',"text":"')
-                text_end_point = data.find('","source":"')
+                text_end_point = data.find(',"source":"')
                 tweet_text = data[text_start_point : text_end_point]
                 if tweet_text[:4] != "RT @":
-                    #print(tweet_text)
+                    print(tweet_text)
                     with open( "tweets.txt" , 'a') as tf:
 
                         tf.write( tweet_text + "\n" )
