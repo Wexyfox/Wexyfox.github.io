@@ -10,7 +10,10 @@ import twitter_credentials
 class MyTweetStreamer():
     #class for filtering tweets
 
-    def stream_tweets( self , fetched_tweets_filename ):
+    def __init__(self):
+        pass
+
+    def stream_tweets( self ):
     #authenticates and connects to the Twitter Streaming API
 
         listener = OutListener()
@@ -20,7 +23,7 @@ class MyTweetStreamer():
         authenticator.set_access_token( twitter_credentials.ACCESS_TOKEN , twitter_credentials.ACCESS_TOKEN_SECRET)
         #authenitcaes the code using the keys
 
-        stream = Stream( authenticaor , listener )
+        stream = Stream( authenticator , listener )
         #variable that holds the imported Stream
 
         stream.filter( track = ['#construction'] )
@@ -30,14 +33,16 @@ class MyTweetStreamer():
 class OutListener(StreamListener):
     #class for the basic listener that passes recieved tweets from the API
 
-    def __init__( self , fetched_tweets_filename):
+
     #constructor that allows the class to be made an object which is associated with a file that it is writing to
-        self.fetched_tweets_filename = fetched_tweets_filename
+    def __init__(self):
+        pass
 
     def on_data( self , data ):
         #tries to
         try:
-            with open( self.fetched_tweets_filename , 'a') as tf:
+            print(data)
+            with open( "tweets.txt" , 'a') as tf:
                 tf.write( data )
             return True
 
@@ -52,7 +57,8 @@ class OutListener(StreamListener):
 
 if __name__ == "__main__":
     #standard sanity check
-    fetched_tweets_filename = "tweets.json"
+
+
 
     twitter_streamer = MyTweetStreamer()
-    twitter_streamer.stream_tweets( fetched_tweets_filename )
+    twitter_streamer.stream_tweets()
