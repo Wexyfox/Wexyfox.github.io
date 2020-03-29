@@ -13,18 +13,18 @@ class MyTweetStreamer():
     def stream_tweets( self , fetched_tweets_filename ):
     #authenticates and connects to the Twitter Streaming API
 
-    listener = OutListener()
-    #creates object of the class which inherits the StreamListener
+        listener = OutListener()
+        #creates object of the class which inherits the StreamListener
 
-    authenticator = OAuthHandler( twitter_credentials.CONSUMER_KEY , twitter_credentials.CONSUMER_SECRET )
-    authenticator.set_access_token( twitter_credentials.ACCESS_TOKEN , twitter_credentials.ACCESS_TOKEN_SECRET)
-    #authenitcaes the code using the keys
+        authenticator = OAuthHandler( twitter_credentials.CONSUMER_KEY , twitter_credentials.CONSUMER_SECRET )
+        authenticator.set_access_token( twitter_credentials.ACCESS_TOKEN , twitter_credentials.ACCESS_TOKEN_SECRET)
+        #authenitcaes the code using the keys
 
-    stream = Stream( authenticaor , listener )
-    #variable that holds the imported Stream
+        stream = Stream( authenticaor , listener )
+        #variable that holds the imported Stream
 
-    stream.filter( track = ['#construction'] )
-    #only picks up tweets containing hashtag as apposed to all tweets and then filtering
+        stream.filter( track = ['#construction'] )
+        #only picks up tweets containing hashtag as apposed to all tweets and then filtering
 
 
 class OutListener(StreamListener):
