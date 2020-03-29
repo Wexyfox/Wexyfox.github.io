@@ -26,26 +26,37 @@ class MyTweetStreamer():
         stream = Stream( authenticator , listener )
         #variable that holds the imported Stream
 
-        stream.filter( track = ['#construction'] )
+        stream.filter( track = ['#news'] )
         #only picks up tweets containing hashtag as apposed to all tweets and then filtering
 
 
 class OutListener(StreamListener):
     #class for the basic listener that passes recieved tweets from the API
 
-
-    #constructor that allows the class to be made an object which is associated with a file that it is writing to
+    #constructor
     def __init__(self):
         pass
 
     def on_data( self , data ):
-        #tries to
+        #writes tweets to the text file
         try:
-            print(data)
-            with open( "tweets.txt" , 'a') as tf:
-                tf.write( data )
-            return True
+            #print(data)
+            language_start_point = data.find(',"lang":"') + len(',"lang":"')
+            language_end_point = data.find('","timestamp_ms":"')
+            tweet_langauge = data[language_start_point : language_end_point]
 
+            text_start_point = data.find(',"text":"') + len(',"text":"')
+            text_end_point = data.find('","source":"')
+            tweet_text = data[text_start_point : text_end_point]
+            if tweet_text[:4] != "RT @":
+                print(tweet_text)
+                with open( "tweets.txt" , 'a') as tf:
+
+                    tf.write( tweet_text + "\n" )
+                    tf.write( data + "\n" )
+                return True
+
+        #prints error to command line if an error is encounted
         except BaseException as e:
             print("Error on_data: %s" % str(e))
 
@@ -57,8 +68,6 @@ class OutListener(StreamListener):
 
 if __name__ == "__main__":
     #standard sanity check
-
-
 
     twitter_streamer = MyTweetStreamer()
     twitter_streamer.stream_tweets()
