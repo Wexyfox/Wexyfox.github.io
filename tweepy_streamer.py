@@ -45,16 +45,16 @@ class OutListener(StreamListener):
             language_end_point = data.find('","timestamp_ms":"')
             tweet_langauge = data[language_start_point : language_end_point]
 
-            text_start_point = data.find(',"text":"') + len(',"text":"')
-            text_end_point = data.find('","source":"')
-            tweet_text = data[text_start_point : text_end_point]
-            if tweet_text[:4] != "RT @":
-                print(tweet_text)
-                with open( "tweets.txt" , 'a') as tf:
+            if tweet_langauge != "fr":
+                text_start_point = data.find(',"text":"') + len(',"text":"')
+                text_end_point = data.find('","source":"')
+                tweet_text = data[text_start_point : text_end_point]
+                if tweet_text[:4] != "RT @":
+                    #print(tweet_text)
+                    with open( "tweets.txt" , 'a') as tf:
 
-                    tf.write( tweet_text + "\n" )
-                    tf.write( data + "\n" )
-                return True
+                        tf.write( tweet_text + "\n" )
+                        return True
 
         #prints error to command line if an error is encounted
         except BaseException as e:
