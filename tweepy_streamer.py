@@ -53,7 +53,8 @@ class OutListener(StreamListener):
                     print(tweet_text)
                     with open( "tweets.txt" , 'a') as tf:
 
-                        tf.write( tweet_text + "\n" )
+                        tf.write( str(num_tweets) + " " + tweet_text + "\n" )
+                        num_tweets = num_tweets + 1
                         return True
 
         #prints error to command line if an error is encounted
@@ -68,6 +69,9 @@ class OutListener(StreamListener):
 
 if __name__ == "__main__":
     #standard sanity check
+    num_tweets = 0
 
     twitter_streamer = MyTweetStreamer()
-    twitter_streamer.stream_tweets()
+
+    while num_tweets != 10
+        twitter_streamer.stream_tweets()
