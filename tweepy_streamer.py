@@ -3,9 +3,34 @@ from tweepy import OAuthHandler
 from tweepy import Stream
 #required tweepy modules
 
-import clasiffy_sentences
+from textblob import TextBlob
+#import textblob
+
 import twitter_credentials
 #holds all the keys for the API access
+
+import re
+import joblib
+import nltk
+
+def classify(sentence):
+    classifier = joblib.load("model.pkl")
+
+    def preprocessor(sentence):
+        sentence = sentence.strip().lower()
+        sentence = re.sub(r"\d+", "", sentence)
+        sentence = re.sub(r'[^\w\s]', '', sentence)
+        sentence = " ".join([w for w in nltk.word_tokenize(sentence) if len(w) > 1])
+
+        return sentence
+
+    clean_data = [preprocessor(sentence)]
+    vec = joblib.load("vectorizer.pkl")
+    data_text_sparse = vec.transform(clean_data)
+
+    prediction = classifier.predict(data_text_sparse)[0]
+
+    return prediction
 
 
 class MyTweetStreamer():
@@ -65,7 +90,7 @@ class OutListener(StreamListener):
                     num_tweets += 1
                     #checks if the number of tweets meets the required amount and breaks out
 
-                    if num_tweets == 3:
+                    if num_tweets == 2:
                         print(tweet_text)
                         list_tweets.append(tweet_text)
                         exit()
@@ -81,8 +106,14 @@ class OutListener(StreamListener):
 
             if str(e) == "None":
             #if the break was initiated because the required amount of tweets is aquired
-                print(list_tweets)
+                for tweet in list_tweets:
+                    tweet = TextBlob(tweet)
+                    translated_tweet = tweet.translate( to = "en" )
+                    #print(translated_tweet)
+                    prediction = classify(translated_tweet)
+                    list_translations.append(translated_tweet , prediction)
 
+                print(list_translations)
             exit()
 
         return True
@@ -95,6 +126,7 @@ if __name__ == "__main__":
     #standard sanity check
     num_tweets = 0
     list_tweets = []
+    list_translations = []
 
     twitter_streamer = MyTweetStreamer()
     twitter_streamer.stream_tweets()
