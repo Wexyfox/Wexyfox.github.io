@@ -22,4 +22,3 @@ def classify(sentence):
     prediction = classifier.predict(data_text_sparse)[0]
 
     return prediction
-

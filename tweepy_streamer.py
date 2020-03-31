@@ -13,6 +13,9 @@ import re
 import joblib
 import nltk
 
+import json
+
+
 def classify(sentence):
     classifier = joblib.load("model.pkl")
 
@@ -53,7 +56,7 @@ class MyTweetStreamer():
         stream = Stream( authenticator , listener )
         #variable that holds the imported Stream
 
-        stream.filter( track = ['#news'] )
+        stream.filter( track = ['#COVID19'] )
         #only picks up tweets containing hashtag as apposed to all tweets and then filtering
 
 
@@ -68,52 +71,87 @@ class OutListener(StreamListener):
     def on_data( self , data ):
         #writes tweets to the text file
 
+        global num_negative_tweets
+        global num_positive_tweets
+        global num_neutral_tweets
         global num_tweets
         #allows for manipulation of counter in the constant stream
 
         try:
+            #using a try here because of how the stream is a constant call of this section of code
             #print(data)
-            language_start_point = data.find(',"lang":"') + len(',"lang":"')
-            language_end_point = data.find('","timestamp_ms":"')
-            tweet_langauge = data[language_start_point : language_end_point]
+            language_start_point = data.find( ',"lang":"') + len(',"lang":"' )
+            language_end_point = data.find( '","timestamp_ms":"' )
+            tweet_langauge = data[ language_start_point : language_end_point ]
 
 
             if tweet_langauge == "fr":
             #finds the tweet language and only continues if it is the specified language
-                text_start_point = data.find(',"text":"') + len(',"text":"')
-                text_end_point = data.find(',"source":"')
-                tweet_text = data[text_start_point : text_end_point]
+                text_start_point = data.find( ',"text":"' ) + len( ',"text":"' )
+                text_end_point = data.find( ',"source":"' )
+                tweet_text = data[ text_start_point : text_end_point ]
 
-                if tweet_text[:4] != "RT @":
+                if tweet_text[ :4 ] != "RT @":
                 #finds the tweet text and only continues if it is not a retweet (broken up text from streamer)
 
                     num_tweets += 1
                     #checks if the number of tweets meets the required amount and breaks out
 
-                    if num_tweets == 2:
-                        print(tweet_text)
-                        list_tweets.append(tweet_text)
+                    if num_tweets == 100:
+                        #print(tweet_text)
+                        list_tweets.append( tweet_text )
                         exit()
+                        #once the specified number of tweets is reached, the exception is called to break the cycle
+
                     else:
-                        print(tweet_text)
-                        list_tweets.append(tweet_text)
+                        #print(tweet_text)
+                        list_tweets.append( tweet_text )
                         return True
 
 
-        #prints error to command line if an error is encounted
-        except BaseException as e:
-            print("Error on_data: %s" % str(e))
 
-            if str(e) == "None":
+        except BaseException as e:
+            print( "Error on_data: %s" % str( e ) )
+            #prints error to command line if an error is encounted
+
+            if str( e ) == "None":
             #if the break was initiated because the required amount of tweets is aquired
                 for tweet in list_tweets:
-                    tweet = TextBlob(tweet)
-                    translated_tweet = tweet.translate( to = "en" )
-                    #print(translated_tweet)
-                    prediction = classify(translated_tweet)
-                    list_translations.append(translated_tweet , prediction)
+                    #for every returned tweet
+                    temp_var = TextBlob( tweet )
+                    translated_tweet = str( temp_var.translate( to = "en" ) )
+                    #translates the tweet text
 
-                print(list_translations)
+                    prediction = classify( translated_tweet )
+                    #uses the provided prediction on the translated tweet
+                    #print(prediction)
+
+                    if prediction == "positive":
+                        num_positive_tweets += 1
+
+                    elif prediction == "negative":
+                        num_negative_tweets += 1
+
+                    else:
+                        num_neutral_tweets += 1
+                    #looks at the prediction and increments the counters respectively
+
+                    list_translated_data_tuple.append( ( translated_tweet , prediction ) )
+                    #appends the tuple including the tweet and the prediction
+
+                #print(list_translated_data_tuple)
+
+                translated_tweet_json_dump = json.dumps( list_translated_data_tuple )
+                #turns the list of tuples into json format
+                #print(translated_tweet_json_dump)
+
+                with open( 'sentiment.json' , 'w' ) as json_file:
+                    json.dump( translated_tweet_json_dump , json_file )
+                #opens the json file, writes the data and then closes the file
+
+            print( "Number of positive tweets: " + str( num_positive_tweets ) )
+            print( "Number of negative tweets: " + str( num_negative_tweets ) )
+            print( "Number of neutral tweets: " + str( num_neutral_tweets ) )
             exit()
 
         return True
@@ -126,7 +164,11 @@ if __name__ == "__main__":
     #standard sanity check
     num_tweets = 0
     list_tweets = []
-    list_translations = []
+    list_translated_data_tuple = []
+
+    num_negative_tweets = 0
+    num_positive_tweets = 0
+    num_neutral_tweets = 0
 
     twitter_streamer = MyTweetStreamer()
     twitter_streamer.stream_tweets()
