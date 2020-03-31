@@ -95,6 +95,7 @@ class OutListener(StreamListener):
                 #finds the tweet text and only continues if it is not a retweet (broken up text from streamer)
 
                     num_tweets += 1
+                    print(num_tweets)
                     #checks if the number of tweets meets the required amount and breaks out
 
                     if num_tweets == 100:
@@ -119,7 +120,13 @@ class OutListener(StreamListener):
                 for tweet in list_tweets:
                     #for every returned tweet
                     temp_var = TextBlob( tweet )
-                    translated_tweet = str( temp_var.translate( to = "en" ) )
+
+                    try:
+                        translated_tweet = str( temp_var.translate( to = "en" ) )
+                    except:
+                        translated_tweet = str( temp_var)
+                    #tries to translate the tweet. If the tweet is already in english (somehow?) then pass the already translated tweet
+
                     #translates the tweet text
 
                     prediction = classify( translated_tweet )

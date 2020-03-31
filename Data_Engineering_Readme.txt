@@ -26,7 +26,7 @@ a function that takes a sentence string as input and outputs a sentiment label, 
 "negative" or "neutral".
 
 Task 2:
-Data Storage
+Data Stora
 - Save the model results to a .JSON file 
 - Lastly, programatically retrieve the following information based on your dataset: Total counts 
 for each sentiment category
